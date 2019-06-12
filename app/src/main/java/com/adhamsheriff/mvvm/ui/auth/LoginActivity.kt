@@ -1,13 +1,17 @@
 package com.adhamsheriff.mvvm.ui.auth
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.adhamsheriff.mvvm.R
 import com.adhamsheriff.mvvm.databinding.ActivityLoginBinding
+import com.adhamsheriff.mvvm.util.hide
+import com.adhamsheriff.mvvm.util.show
 import com.adhamsheriff.mvvm.util.toast
+import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity(), AuthListener {
 
@@ -15,7 +19,7 @@ class LoginActivity : AppCompatActivity(), AuthListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val binding : ActivityLoginBinding = DataBindingUtil.setContentView(this, R.layout.activity_login)
+        val binding: ActivityLoginBinding = DataBindingUtil.setContentView(this, R.layout.activity_login)
         val viewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         binding.viewmodel = viewModel
 
@@ -24,14 +28,19 @@ class LoginActivity : AppCompatActivity(), AuthListener {
     }
 
     override fun onStarted() {
-        toast("Started")
+        progress_bar.show()
+
     }
 
-    override fun onSuccess() {
-        toast("Success")
+    override fun onSuccess(loginResponse: LiveData<String>) {
+
+        loginResponse.observe(this, Observer {
+            progress_bar.hide()
+            toast(it) })
     }
 
     override fun onFailure(message: String) {
+        progress_bar.hide()
         toast(message)
     }
 

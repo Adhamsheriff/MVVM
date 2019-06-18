@@ -1,5 +1,6 @@
 package com.adhamsheriff.mvvm.data.network
 
+import com.adhamsheriff.mvvm.data.network.responses.AuthResponses
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -13,10 +14,10 @@ interface MyApi {
 
     @FormUrlEncoded
     @POST("login")
-    fun userLogin(
+    suspend fun userLogin(
         @Field("email") email:String,
         @Field("passwod") password: String
-    ): Call<ResponseBody>
+    ): Response<AuthResponses>
 
     companion object{
         operator fun invoke() : MyApi{

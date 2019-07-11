@@ -3,6 +3,7 @@ package com.adhamsheriff.mvvm.ui.auth
 import android.view.View
 import androidx.lifecycle.ViewModel
 import com.adhamsheriff.mvvm.data.repositories.UserRepository
+import com.adhamsheriff.mvvm.util.ApiException
 import com.adhamsheriff.mvvm.util.Coroutines
 
 class AuthViewModel : ViewModel() {
@@ -13,24 +14,25 @@ class AuthViewModel : ViewModel() {
 
     fun onLoginButtonClick(view: View) {
         authListener?.onStarted()
-        if(email.isNullOrEmpty() ||password.isNullOrEmpty())
-        {
+        if (email.isNullOrEmpty() || password.isNullOrEmpty()) {
             authListener?.onFailure("Invalid UserName or Password")
             return
         }
 
         Coroutines.main {
-            val response = UserRepository().userLogin(email!!,password!!)
-            if(response.isSuccessful){
-                authListener?.onSuccess(response.body()?.user!! )
+            try {
+                val authResponses = UserRepository().userLogin(email!!, password!!)
+
+                authResponses.user.let {
+                    authListener?.onSuccess(it)
+                    return@main
+                }
+                authListener?.onFailure(authResponses.message!!)
+
+            }catch (e: ApiException){
+                authListener?.onFailure(e.message!!)
             }
-            else
-            {
-                authListener?.onFailure("Error code : ${response.code() }")
-            }
+
         }
-
-
-
     }
 }
